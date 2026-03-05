@@ -30,7 +30,7 @@ contains
 
     select case (conf_type)
     case(1)  ! all-trans
-      phi = pi
+      phi = 0.d0
     case(2)  ! random uniform in [-pi, pi]
       phi = (2.0d0*r - 1.0d0) * pi
     case(3)  ! simple RIS-like: {-60, 60, 180} equally likely
@@ -131,21 +131,39 @@ contains
     v23 = (/ -bond_len*cos(theta), bond_len*sin(theta), 0.0d0 /)
     coords_c(3,:) = coords_c(2,:) + v23
 
+    !do i = 4, n_carbons
+    !  tries = 0
+    !  do
+    !    tries = tries + 1
+    !    if (tries > 5000) then
+    !      write(*,*) "ERROR: failed to place atom ", i, " without overlap."
+    !      stop 1
+    !    endif
+
+    !    phi = propose_phi(conf_type)
+    !    coords_c(i,:) = place_next_atom(coords_c(i-3,:), coords_c(i-2,:), coords_c(i-1,:), phi)
+
+    !    if (ok_no_overlap(coords_c, i)) exit
+    !  enddo
+    !enddo
     do i = 4, n_carbons
+    phi = propose_phi(conf_type)
+    coords_c(i,:) = place_next_atom(coords_c(i-3,:), coords_c(i-2,:), coords_c(i-1,:), phi)
+
+    if (conf_type /= 1) then
       tries = 0
-      do
+      do while (.not. ok_no_overlap(coords_c, i))
         tries = tries + 1
         if (tries > 5000) then
           write(*,*) "ERROR: failed to place atom ", i, " without overlap."
           stop 1
         endif
-
         phi = propose_phi(conf_type)
         coords_c(i,:) = place_next_atom(coords_c(i-3,:), coords_c(i-2,:), coords_c(i-1,:), phi)
-
-        if (ok_no_overlap(coords_c, i)) exit
       enddo
-    enddo
+    endif
+  enddo
+
   end subroutine build_chain_c_only
 
 ! 5.
