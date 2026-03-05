@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
+# Import scientific style science.mplstyle from the same directory as this script
+plt.style.use(os.path.join(os.path.dirname(__file__), 'science.mplstyle'))
+
 # Create plots in the results directory
 OUTPUT_DIR = '../results/'
 if not os.path.exists(OUTPUT_DIR):
@@ -25,9 +28,9 @@ def plot_energies():
         plt.title('Energy Evolution')
         plt.legend()
         plt.grid(True)
-        plt.savefig(os.path.join(OUTPUT_DIR, 'energy_evolution.png'), dpi=300)
+        plt.savefig(os.path.join(OUTPUT_DIR, 'energy_evolution.pdf'))
         plt.close()
-        print("Generated energy_evolution.png")
+        print("Generated energy_evolution.pdf")
     except Exception as e:
         print(f"Error plotting energies: {e}")
 
@@ -51,9 +54,9 @@ def plot_observables():
         ax2.grid(True)
 
         plt.tight_layout()
-        plt.savefig(os.path.join(OUTPUT_DIR, 'observables_evolution.png'), dpi=300)
+        plt.savefig(os.path.join(OUTPUT_DIR, 'observables_evolution.pdf'))
         plt.close()
-        print("Generated observables_evolution.png")
+        print("Generated observables_evolution.pdf")
     except Exception as e:
         print(f"Error plotting observables: {e}")
 
@@ -84,9 +87,9 @@ def plot_torsions():
         plt.ylabel('Probability Density')
         plt.title('Equilibrium Torsion Angle Distribution')
         plt.grid(True)
-        plt.savefig(os.path.join(OUTPUT_DIR, 'torsion_distribution.png'), dpi=300)
+        plt.savefig(os.path.join(OUTPUT_DIR, 'torsion_distribution.pdf'))
         plt.close()
-        print("Generated torsion_distribution.png")
+        print("Generated torsion_distribution.pdf")
     except Exception as e:
         print(f"Error plotting torsions: {e}")
 
