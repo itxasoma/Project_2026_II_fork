@@ -39,7 +39,7 @@ program main_serial
   integer :: u_ener, u_obs, u_traj, u_tors, u_cpu
   character(len=256) :: comment
   character(len=256) :: run_tag, temp_tag
-  character(len=256) :: energy_file, obs_file, tors_file, cpu_file
+  character(len=256) :: energy_file, obs_file, tors_file, cpu_file, traj_file
   character(len=32)  :: s_ncarb, s_conf, s_nsteps, s_tini, s_tfin
   double precision :: cpu_start, cpu_now, cpu_elapsed
 
@@ -72,6 +72,8 @@ program main_serial
   obs_file    = '../results/observables_' // trim(run_tag) // '.dat'
   tors_file   = '../results/torsions_'    // trim(run_tag) // '.dat'
   cpu_file    = '../results/cpu_'         // trim(run_tag) // '.dat'
+  traj_file   = '../results/trajectory_'  // trim(run_tag) // '.xyz'
+
 
 
   !allocate(phis(size(symbols) - 3))
@@ -105,6 +107,8 @@ program main_serial
   open(newunit=u_cpu, file=trim(cpu_file), status='replace')
   write(u_cpu, '(A)') '# Step CPU_Time_s'
 
+  open(newunit=u_traj, file=trim(traj_file), status='replace')
+  write(u_traj, '(A)') '# XYZ trajectory of the MC simulation'
 
   write(*,'(A)') " [MC Simulation] Initialization Complete"
   write(*,'(A,I0)') " [MC Simulation] Carbons: ", n_carbons
