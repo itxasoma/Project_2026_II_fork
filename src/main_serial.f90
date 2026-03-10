@@ -118,7 +118,7 @@ program main_serial
   write(u_cpu, '(A)') '# Step CPU_Time_s'
 
   open(newunit=u_traj, file=trim(traj_file), status='replace')
-  write(u_traj, '(A)') '# XYZ trajectory of the MC simulation'
+  !write(u_traj, '(A)') '# XYZ trajectory of the MC simulation'
 
   write(*,'(A)') " [MC Simulation] Initialization Complete"
   write(*,'(A,I0)') " [MC Simulation] Carbons: ", n_carbons
