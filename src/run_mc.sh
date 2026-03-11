@@ -8,9 +8,11 @@
 #$ -e polyMC_$JOB_ID.err
 
 . /etc/profile
+module load gcc
 export OMP_NUM_THREADS=$NSLOTS
 export MPLBACKEND=Agg
 
+make clean
 make
 make run
 make clean
