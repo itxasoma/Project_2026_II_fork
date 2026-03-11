@@ -14,7 +14,7 @@ program main_serial
   use observables
   implicit none
 
-  integer :: n_carbons, n_atoms,conf_type, rng_seed
+  integer :: n_carbons, n_steps, n_atoms,conf_type, rng_seed
   logical :: explicit_h
   character(len=256) :: xyz_file
 
@@ -22,7 +22,7 @@ program main_serial
   double precision, allocatable :: coords(:, :)
 
   ! MC parameters
-  integer, parameter :: n_steps = 1000000
+  ! integer, parameter :: n_steps = 1000000
   integer, parameter :: print_interval = 10000
   !double precision, parameter :: T = 300.0d0
   double precision :: beta
@@ -47,7 +47,7 @@ program main_serial
 
 
   ! 1. Initialize
-  call read_input_dat(n_carbons, explicit_h, conf_type, rng_seed, xyz_file)
+  call read_input_dat(n_carbons, n_steps, explicit_h, conf_type, rng_seed, xyz_file)
   call generate_initial_configuration(n_carbons, explicit_h, conf_type, rng_seed, symbols, coords)
 
   T = T_ini 
@@ -118,7 +118,7 @@ program main_serial
   write(u_cpu, '(A)') '# Step CPU_Time_s'
 
   open(newunit=u_traj, file=trim(traj_file), status='replace')
-  write(u_traj, '(A)') '# XYZ trajectory of the MC simulation'
+  !write(u_traj, '(A)') '# XYZ trajectory of the MC simulation' !This line breaks VMD load
 
   write(*,'(A)') " [MC Simulation] Initialization Complete"
   write(*,'(A,I0)') " [MC Simulation] Carbons: ", n_carbons

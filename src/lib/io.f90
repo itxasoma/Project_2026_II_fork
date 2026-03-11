@@ -8,9 +8,10 @@ module io
 
 contains
 
-  subroutine read_input_dat(n_carbons, explicit_h, conf_type, rng_seed, xyz_file)
+  subroutine read_input_dat(n_carbons, n_steps, explicit_h, conf_type, rng_seed, xyz_file)
     character(len=256), intent(out):: xyz_file
     integer, intent(out):: n_carbons
+    integer, intent(out):: n_steps
     logical, intent(out):: explicit_h
     integer, intent(out):: conf_type
     integer, intent(out):: rng_seed
@@ -22,6 +23,7 @@ contains
 
     ! Defaults
     n_carbons  = 20
+    n_steps    = 1000000
     explicit_h = .false.
     conf_type  = 1
     rng_seed   = 12345
@@ -56,6 +58,10 @@ contains
       case("n_carbons")
         read(val, *, iostat=ios) n_carbons
         if (ios /= 0) call bad_value("n_carbons", val)
+
+      case("n_steps")
+        read(val, *, iostat=ios) n_steps
+        if (ios /= 0) call bad_value("n_steps", val)
 
       case("explicit_h")
         read(val, *, iostat=ios) explicit_h
