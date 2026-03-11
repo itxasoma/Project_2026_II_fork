@@ -42,6 +42,8 @@ contains
       else
         phi = 180.0d0 * deg2rad
       endif
+    case(4)  ! spring/helix
+      phi = pi / 12.0d0 ! constant 15 degree angle
     case default
       phi = (2.0d0*r - 1.0d0) * pi
     end select

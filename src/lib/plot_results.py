@@ -119,7 +119,7 @@ def plot_torsions(tors_file):
             alpha=0.7,
             color='purple',
             edgecolor='black',
-            label='Histogram'
+            label='Equilibrated Density'
         )
         ax1.set_xlabel('Torsion Angle (rad)')
         ax1.set_ylabel('Probability Density')
