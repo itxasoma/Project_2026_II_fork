@@ -1,4 +1,5 @@
 ! Module input/output for reading/writing files
+! Author: Itxaso Muñoz-Aldalur
 module io
   use parameters
   implicit none

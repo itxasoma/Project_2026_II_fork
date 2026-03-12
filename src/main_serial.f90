@@ -1,6 +1,7 @@
 ! main_serial.f90
 ! Main (driver) program to run the Monte Carlo simulation
-! authors: ai-murphy, itxasoma
+! Author: Arthur Murphy
+! Contributors: Itxaso Muñoz-Aldalur
 
 program main_serial
   use parameters

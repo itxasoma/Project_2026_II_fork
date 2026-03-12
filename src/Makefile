@@ -1,3 +1,6 @@
+# Author: Arthur Murphy
+# Contributors: Itxaso Muñoz-Aldalur, Oliwier Misztal
+
 FC     = gfortran
 FFLAGS = -O2 -Wall -Wextra
 

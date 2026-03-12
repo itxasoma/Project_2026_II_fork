@@ -1,6 +1,6 @@
 ! monte_carlo.f90
 ! Module to manage MC step and rotations
-
+! Author: Manel Díaz Calvo
 
 module monte_carlo
   use parameters    ! To get phi

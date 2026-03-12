@@ -1,5 +1,6 @@
 ! Module observables
 ! Computes radius of gyration, end-to-end distance, and extracts torsion angles.
+! Author: Arthur Murphy
 
 module observables
   use energy, only: compute_cos_dihedral

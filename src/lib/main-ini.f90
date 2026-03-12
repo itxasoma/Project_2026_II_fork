@@ -1,3 +1,5 @@
+! Main program to test initial conformation of the N-carbon chain
+! Author: Itxaso Muñoz-Aldalur
 program main_ini
   use parameters
   use io

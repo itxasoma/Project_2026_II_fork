@@ -1,4 +1,7 @@
 ! Global module for the parameters
+! Author: Itxaso Muñoz-Aldalur
+! Contributors: Oliwier Misztal
+
 module parameters
   implicit none
   double precision, parameter:: pi        = 4.0d0 * atan(1.0d0)

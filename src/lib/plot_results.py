@@ -1,4 +1,6 @@
-# authors: ai-murphy, itxasoma
+# Author: Arthur Murphy
+# Contributors: Itxaso Muñoz-Aldalur
+
 import numpy as np
 import matplotlib.pyplot as plt
 import os

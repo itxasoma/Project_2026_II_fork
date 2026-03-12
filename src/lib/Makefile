@@ -1,3 +1,5 @@
+# Makefile for initial configuration tests
+# Author: Itxaso Muñoz-Aldalur
 FC     = gfortran
 FFLAGS = -O2 -Wall -Wextra -std=f2008
 DBG    = -O0 -g -fcheck=all -fbacktrace

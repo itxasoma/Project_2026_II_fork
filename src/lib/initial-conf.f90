@@ -1,5 +1,5 @@
 ! Module for the initial conformation of the N-carbon chain
-
+! Author: Itxaso Muñoz-Aldalur
 ! initial-conf.f90
 !
 ! Initial configuration generator for polyethylene:
