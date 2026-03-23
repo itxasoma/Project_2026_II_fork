@@ -1,5 +1,5 @@
 ! Module input/output for reading/writing files
-! Author: Itxaso Muñoz-Aldalur
+! author: itxasoma
 module io
   use parameters
   implicit none

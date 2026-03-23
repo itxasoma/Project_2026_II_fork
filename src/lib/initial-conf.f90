@@ -1,7 +1,7 @@
 ! Module for the initial conformation of the N-carbon chain
 ! Author: Itxaso Muñoz-Aldalur
 ! initial-conf.f90
-!
+! author: itxasoma
 ! Initial configuration generator for polyethylene:
 ! - Carbon-only chain (united atom backbone)
 ! - Optional explicit hydrogens for visualization
