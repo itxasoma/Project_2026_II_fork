@@ -23,10 +23,12 @@ contains
   double precision function propose_phi(conf_type) result(phi)
     ! Author: itxasoma
     integer, intent(in) :: conf_type
-    double precision :: r
+    double precision :: r, r2, delta
     integer :: pick
 
     call random_number(r)
+    call random_number(r2)
+    delta = 15.0d0 * deg2rad
 
     select case (conf_type)
     case(1)  ! all-trans planar zigzag in builder convention
@@ -44,6 +46,12 @@ contains
       endif
     case(4)  ! spring/helix
       phi = pi / 12.0d0 ! constant 15 degree angle
+    case(5)  ! nearly all-trans planar zigzag, with occasional small random out-of-plane tilt
+      if (r < 0.8d0) then
+        phi = 0.0d0
+      else
+        phi = (2.0d0*r2 - 1.0d0) * delta
+      endif
     case default
       phi = (2.0d0*r - 1.0d0) * pi
     end select
@@ -216,8 +224,8 @@ contains
 
     theta = 0.5d0 * angle_tetra_deg * deg2rad
 
-    dir1 = cos(theta)*e1 + sin(theta)*e3
-    dir2 = cos(theta)*e1 - sin(theta)*e3
+    dir1 = cos(theta)*e1 + sin(theta)*e2
+    dir2 = cos(theta)*e1 - sin(theta)*e2
 
     h_xyz2(1,:) = r_c + bond_ch * unit_vec(dir1)
     h_xyz2(2,:) = r_c + bond_ch * unit_vec(dir2)
