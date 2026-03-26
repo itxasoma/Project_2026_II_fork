@@ -47,7 +47,7 @@ if (rank == 0) then
 end if
 ```
 
-## 4. Parallel Tempering / Replica Exchange (```MPI_Send``` & ```MPI_Recv```)
+## 4. Parallel Tempering / Replica Exchange (```MPI_Send``` & ```MPI_Recv```) -- ABORTED (we're using diff configs & random seeds instead)
 **Concept**: Run a different temperature (```T```) on each processor. Periodically, you pause the Monte Carlo loop and have adjacent temperature processors swap their entire coordinate arrays if they pass a Metropolis criterion, allowing the system to escape local energy minimums.
 
 ```fortran
@@ -68,7 +68,7 @@ if (mod(istep, 100000) == 0) then
 end if
 ```
 
-## 5. Task Distribution for Energy Calculations (```MPI_Scatter```)
+## 5. Task Distribution for Energy Calculations (```MPI_Scatter```) -- Replaced with Oliwier's Total Energy Code
 **Concept**: The Lennard-Jones calculation $O(N^2)$ inside ```compute_total_energy``` takes a long time for huge polymers. The Master processor can break the array of coordinates into chunks and deal them out like a deck of cards to Worker processors to calculate partial energies.
 
 ```fortran
@@ -85,7 +85,7 @@ call MPI_Scatter(coords, chunk_size, MPI_DOUBLE_PRECISION, &
 ! Now each rank runs its own mini energy loop on 'chunk_coords'
 ```
 
-## 6. Collecting Final Snapshots (```MPI_Gather```)
+## 6. Collecting Final Snapshots (```MPI_Gather```) -- Possibly Art w Itxaso
 **Concept**: Once the simulation is over, you might want to create a single giant ```.xyz``` trajectory file that contains the final frame of the polymer from every single replica.
 
 ```fortran
@@ -105,7 +105,7 @@ end if
 call MPI_FINALIZE(ierr)
 ```
 
-## 7. Global Data Synchronization (```MPI_Allgather```)
+## 7. Global Data Synchronization (```MPI_Allgather```) -- ABORTED
 **Concept**: Suppose you split the 500-carbon polymer into chunks across 5 CPUs, so each CPU only proposes MC moves for its 100 atoms. After a round of local moves, they all need the new, updated positions of the entire polymer before they can calculate the next iteration's energy. Allgather ensures every rank ends up with the full, reconstructed coords array.
 
 ```fortran
@@ -119,7 +119,7 @@ call MPI_Allgather(local_coords, count, MPI_DOUBLE_PRECISION, &
                    MPI_COMM_WORLD, ierr)
 ```
 
-## 8. Non-Blocking Ghost-Atom Exchange (```MPI_Isend``` & ```MPI_Irecv```)
+## 8. Non-Blocking Ghost-Atom Exchange (```MPI_Isend``` & ```MPI_Irecv```) -- NO PBCs USED
 **Concept**: In a spatial domain decomposition model, processors only manage a 3D "box" of the simulation. If a polymer crosses the box boundary, processors must exchange edge coordinates ("ghost atoms"). Non-blocking calls let the CPU continue doing local math while the network handles the data transfer in the background, preventing idle wait times.
 
 ```fortran
@@ -136,7 +136,7 @@ call MPI_Isend(right_edge_atoms, num_ghosts*3, MPI_DOUBLE_PRECISION, &
 call MPI_Wait(request_recv, status, ierr)
 ```
 
-## 9. Shared Decision Making (```MPI_Allreduce```)
+## 9. Shared Decision Making (```MPI_Allreduce```) -- Torsional Energy function is already simplified
 **Concept**: If processors are cooperating to calculate the energy of a massive single polymer step (e.g. Rank 0 calculates $E_{lj}$, Rank 1 calculates $E_{tors}$), all of them need the final summed delta_E simultaneously to pass into the Metropolis ```exp(-beta * delta_E)``` function so they all accept or reject the same move collectively.
 
 ```fortran
@@ -153,7 +153,7 @@ if (exp(-beta * global_delta_E) > random_number) then
 end if
 ```
 
-## 10. Splitting Processors into Sub-Groups (```MPI_Comm_split```)
+## 10. Splitting Processors into Sub-Groups (```MPI_Comm_split```) -- Sort of DONE (using different configurations)
 **Concept**: Want to run 4 completely different types of polymers at the same time? You can split ```MPI_COMM_WORLD``` so that Ranks 0-7 simulate a 500-carbon chain, and Ranks 8-15 simulate a 1000-carbon chain. They effectively act as mini clusters that don't interfere with each other.
 
 ```fortran
@@ -223,7 +223,7 @@ call MPI_File_close(fh, ierr)
 **Concept**: To test whether the simulation results are independent of the starting geometry, each processor generates a different initial configuration (different conf_type or rng_seed) and runs the full MC loop (same T, same MCSTEPS, same everything else) completely in parallel. Zero communication is needed during the MC loop itself, since each rank is a fully self-contained replica. The only coordination needed is at startup (to assign identities) and at shutdown (to finalize MPI).
 
 
-# Energy Calculations Parallelization
+# Energy Calculations Parallelization - Oliwier, to be tested
 To enable control over parallelization the switches need to be implemented - e.g. in `parameters.f90`:
 
 ```fortran
