@@ -4,6 +4,21 @@
 FC     = gfortran
 FFLAGS = -O2 -Wall -Wextra
 
+# Make sure that MPI is installed
+# 1. Search for mpi.mod dynamically in common linux paths, taking only the first match
+# 2. Check if the file was found; if empty, throw an error (exiting make)
+# 3. Extract just the directory path from the file path & add it with -I to compiler flags
+
+MPI_MOD_FILE := $(shell find /usr /opt -name mpi.mod -type f 2>/dev/null | head -n 1)
+
+ifeq ($(strip $(MPI_MOD_FILE)),)
+$(error "MPI is required but mpi.mod was not found! Please install OpenMPI (e.g. 'sudo apt install libopenmpi-dev')")
+endif
+
+MPI_INC_DIR := $(dir $(MPI_MOD_FILE))
+FFLAGS += -I$(MPI_INC_DIR)
+
+
 OBJ_DIR = ../bin
 EXE     = $(OBJ_DIR)/main_serial.x
 

@@ -1,4 +1,4 @@
-## 1. Broadcasting Input Parameters (```MPI_Bcast```)
+## 1. Broadcasting Input Parameters (```MPI_Bcast```) -- DONE
 **Concept**: File I/O operations are very slow if hundreds of processors try to read the same file at once. Instead, have only the "Master" processor (Rank 0) read ```input.dat```, and then broadcast the variables to all "Worker" processors.
 
 ```fortran
@@ -21,7 +21,7 @@ call MPI_Bcast(n_steps, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
 ```
 
 
-## 2. Time Synchronization (```MPI_Barrier```)
+## 2. Time Synchronization (```MPI_Barrier```)  -- DONE (each rank has its own cpu timing file)
 **Concept**: Before you start your CPU timer (```call cpu_time(cpu_start)```), you want to make sure every processor has finished setting up the initial topology and coordinates so the benchmark is accurate.
 
 ```fortran
@@ -215,9 +215,9 @@ call MPI_File_write_at(fh, disp, local_string_buffer, string_length, &
 call MPI_File_close(fh, ierr)
 ```
 
-## 13. Synchronized Exploration
+## 13. Synchronized Exploration -- Manel
 **Concept**: To accelerate convergence towards thermodynamic equilibrium, multiple workers explore different regions of the phase space starting from the same initial configuration. Periodically, the "Master" evaluates all trajectories, selects the one with the lowest energy (the most stable state found so far), and redistributes it as the new universal starting point for all workers.
 
 
-## 14. Parallel Initial Configuration Sampling (MPI_Comm_rank)
+## 14. Parallel Initial Configuration Sampling (MPI_Comm_rank) -- Itxaso
 **Concept**: To test whether the simulation results are independent of the starting geometry, each processor generates a different initial configuration (different conf_type or rng_seed) and runs the full MC loop (same T, same MCSTEPS, same everything else) completely in parallel. Zero communication is needed during the MC loop itself, since each rank is a fully self-contained replica. The only coordination needed is at startup (to assign identities) and at shutdown (to finalize MPI).
