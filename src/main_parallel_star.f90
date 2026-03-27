@@ -44,6 +44,7 @@ program main_parallel_star
   character(len=256) :: energy_file, obs_file, tors_file, cpu_file, traj_file
   character(len=32)  :: s_ncarb, s_conf, s_nsteps, s_tini, s_tfin, s_seed
   double precision :: cpu_start, cpu_now, cpu_elapsed
+  double precision :: omp_get_wtime
 
   ! Equilibrium variables
   integer, parameter :: block_size = 100
