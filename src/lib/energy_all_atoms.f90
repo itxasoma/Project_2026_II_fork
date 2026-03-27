@@ -59,6 +59,7 @@ contains
     pair_type_matrix(2, 1) = 2 ! H-C
     pair_type_matrix(2, 2) = 3 ! H-H
 
+    if (allocated(atom_itype)) deallocate(atom_itype)
     allocate(atom_itype(n_atoms))
     do i = 1, n_atoms
       if (symbols(i)(1:1) == 'C') then
@@ -86,6 +87,7 @@ contains
     end do
 
     ! 4. Build the 1-2, 1-3, 1-4 exclusion matrix for non-bonded interactions
+    if (allocated(is_excluded)) deallocate(is_excluded)
     allocate(is_excluded(n_atoms, n_atoms))
     is_excluded = .false.
     do i = 1, n_atoms

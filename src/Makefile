@@ -4,23 +4,50 @@
 FC     = gfortran
 FFLAGS = -O2 -Wall -Wextra
 
-# Make sure that MPI is installed
-# 1. Search for mpi.mod dynamically in common linux paths, taking only the first match
-# 2. Check if the file was found; if empty, throw an error (exiting make)
-# 3. Extract just the directory path from the file path & add it with -I to compiler flags
+NP ?=4
+OMP_THREADS ?= 2
 
-MPI_MOD_FILE := $(shell find /usr /opt -name mpi.mod -type f 2>/dev/null | head -n 1)
+# Make sure that MPI & OpenMP are installed for the parallel version and set appropriate FFLAGS
+# Also, turn on the C preprocessor to pass in _USE_OPENMP based on the number of OMP_THREADS
+# Any faults will exit make and provide error message
+ifneq (,$(findstring parallel,$(MAKECMDGOALS)))
+  # MPI Compiler Wrapper Verification
+  MPI_BIN := $(shell command -v mpif90 2>/dev/null)
+  ifeq ($(strip $(MPI_BIN)),)
+    $(error "MPI Compiler is required but 'mpif90' was not found! Please install it (e.g. 'sudo apt install openmpi-bin')")
+  endif
+  # Overwrite Compiler for MPI parallelization flag linking
+  FC = mpif90
 
-ifeq ($(strip $(MPI_MOD_FILE)),)
-$(error "MPI is required but mpi.mod was not found! Please install OpenMPI (e.g. 'sudo apt install libopenmpi-dev')")
+  # MPI
+  MPI_MOD_FILE := $(shell find /usr /opt -name mpi.mod -type f 2>/dev/null | head -n 1)
+  ifeq ($(strip $(MPI_MOD_FILE)),)
+    $(error "MPI is required but mpi.mod was not found! Please install OpenMPI (e.g. 'sudo apt install libopenmpi-dev')")
+  endif
+  MPI_INC_DIR := $(dir $(MPI_MOD_FILE))
+  FFLAGS += -I$(MPI_INC_DIR)
+
+  # OpenMP
+  OMP_MOD_FILE := $(shell find /usr /opt -name omp_lib.mod -type f 2>/dev/null | head -n 1)
+  ifeq ($(strip $(OMP_MOD_FILE)),)
+    $(error "OpenMP is required but omp_lib.mod was not found! Please install libgomp (e.g. 'sudo apt install libgomp1' or 'sudo apt install libomp-dev')")
+  endif
+  FFLAGS += -fopenmp
+
+  # Control OpenMP parallelized energy calculations based on OMP thread count
+  CPP_BIN := $(shell command -v cpp 2>/dev/null)
+  ifeq ($(strip $(CPP_BIN)),)
+    $(error "C-Preprocessor is required but 'cpp' was not found! Please install it (e.g. 'sudo apt install cpp' or 'build-essential')")
+  endif
+  FFLAGS += -cpp
+  ifneq ($(OMP_THREADS),1)
+    FFLAGS += -D_USE_OPENMP
+  endif
 endif
-
-MPI_INC_DIR := $(dir $(MPI_MOD_FILE))
-FFLAGS += -I$(MPI_INC_DIR)
-
 
 OBJ_DIR = ../bin
 EXE     = $(OBJ_DIR)/main_serial.x
+EXE_PARALLEL = $(OBJ_DIR)/main_parallel.x
 
 # List object files taking into account dependencies
 LIB_OBJ = $(OBJ_DIR)/parameters.o \
@@ -32,12 +59,16 @@ LIB_OBJ = $(OBJ_DIR)/parameters.o \
           $(OBJ_DIR)/observables.o
 
 MAIN_OBJ = $(OBJ_DIR)/main_serial.o
+MAIN_PARALLEL_OBJ = $(OBJ_DIR)/main_parallel_star.o
 
-all: $(EXE)
-
+# Executables for serial and parallel versions
 $(EXE): $(LIB_OBJ) $(MAIN_OBJ)
 	@mkdir -p $(OBJ_DIR)
 	$(FC) $(FFLAGS) -o $@ $(LIB_OBJ) $(MAIN_OBJ)
+
+$(EXE_PARALLEL): $(LIB_OBJ) $(MAIN_PARALLEL_OBJ)
+	@mkdir -p $(OBJ_DIR)
+	$(FC) $(FFLAGS) -o $@ $(LIB_OBJ) $(MAIN_PARALLEL_OBJ)
 
 # Pattern rule for modules inside lib/
 $(OBJ_DIR)/%.o: lib/%.f90
@@ -72,19 +103,38 @@ $(OBJ_DIR)/main_serial.o: main_serial.f90 $(LIB_OBJ)
 	@mkdir -p $(OBJ_DIR)
 	$(FC) $(FFLAGS) -J$(OBJ_DIR) -I$(OBJ_DIR) -c $< -o $@
 
-.PHONY: all clean run figures pipeline
+# Parallel main object dependency
+$(OBJ_DIR)/main_parallel_star.o: main_parallel_star.f90 $(LIB_OBJ)
+	@mkdir -p $(OBJ_DIR)
+	$(FC) $(FFLAGS) -J$(OBJ_DIR) -I$(OBJ_DIR) -c $< -o $@
+
+
+.PHONY: all parallel clean run run_parallel figures pipeline pipeline_parallel
+
+all: $(EXE)
+
+parallel: $(EXE_PARALLEL)
 
 run: all
 	@mkdir -p ../results
 	$(EXE)
 
+run_parallel: parallel
+	@mkdir -p ../results
+	@echo "Starting MPI simulation with $(NP) processes and $(OMP_THREADS) OpenMP threads each..."
+	OMP_NUM_THREADS=$(OMP_THREADS) mpirun -np $(NP) $(EXE_PARALLEL)
+
 figures:
 	python lib/plot_results.py
 
 clean:
-	rm -f $(OBJ_DIR)/*.o $(OBJ_DIR)/*.mod $(EXE)
+	rm -f $(OBJ_DIR)/*.o $(OBJ_DIR)/*.mod $(EXE) $(EXE_PARALLEL)
 
 pipeline:
 	$(MAKE) run
+	$(MAKE) figures
+
+pipeline_parallel:
+	$(MAKE) run_parallel
 	$(MAKE) figures
 

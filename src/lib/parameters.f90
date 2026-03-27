@@ -10,8 +10,14 @@ module parameters
 
   ! OpenMP Parallelization Switches
   ! Set to .true. to enable parallelization of the energy calculations
+  ! (Note: Indentation not allowed here)
+#ifdef _USE_OPENMP
+  logical :: omp_total_energy = .true.
+  logical :: omp_delta_energy = .true.
+#else
   logical :: omp_total_energy = .false.
   logical :: omp_delta_energy = .false.
+#endif
 
   ! Lennard-Jones Parameters for UA calculations
   ! double precision, parameter:: sigma_cc  = 3.73d0   ! Angstrom

@@ -133,9 +133,11 @@ program main_parallel_star
            waiting_workers(num_waiting) = worker
 
         else if (tag == TAG_EQUIL_DONE) then
-           call MPI_Recv(idx, 1, MPI_INTEGER, worker, TAG_EQUIL_DONE, MPI_COMM_WORLD, status, ierr)
-           call MPI_Recv(master_coords(idx,:,:), size(coords), MPI_DOUBLE_PRECISION, worker, TAG_EQUIL_DONE, MPI_COMM_WORLD, status, ierr)
-           write(*,*) "[Master] Worker ", worker, " FINISHED EQUILIBRATION for conf_type ", equil_confs(idx), "! Unlocking productions."
+           idx = msg
+           call MPI_Recv(master_coords(idx,:,:), size(coords), MPI_DOUBLE_PRECISION, worker, &
+                         TAG_EQUIL_DONE, MPI_COMM_WORLD, status, ierr)
+           write(*,*) "[Master] Worker ", worker, " FINISHED EQUILIBRATION for conf_type ", &
+                         equil_confs(idx), "! Unlocking productions."
            ! Unlock 10 production jobs
            do p = 1, 10
               total_available_prods = total_available_prods + 1
@@ -144,7 +146,8 @@ program main_parallel_star
 
         else if (tag == TAG_PROD_DONE) then
            completed_prods = completed_prods + 1
-           write(*,*) "[Master] Worker ", worker, " FINISHED PRODUCTION. Total finished: ", completed_prods, "/30"
+           write(*,*) "[Master] Worker ", worker, " FINISHED PRODUCTION. Total finished: ", & 
+                      completed_prods, "/30"
         end if
         
         ! Try pushing work to currently waiting workers
@@ -170,9 +173,11 @@ program main_parallel_star
               seed_to_use = rng_seed + 100 * next_prod
               call MPI_Send(seed_to_use, 1, MPI_INTEGER, worker, TAG_DO_PROD, MPI_COMM_WORLD, ierr)
               ! Send the specific equilibrated coordinates!
-              call MPI_Send(master_coords(idx,:,:), size(coords), MPI_DOUBLE_PRECISION, worker, TAG_DO_PROD, MPI_COMM_WORLD, ierr)
+              call MPI_Send(master_coords(idx,:,:), size(coords), MPI_DOUBLE_PRECISION, &
+                            worker, TAG_DO_PROD, MPI_COMM_WORLD, ierr)
               
-              write(*,*) "[Master] Dispatching PRODUCTION (conf ", c_type, " seed ", seed_to_use, ") to Worker ", worker
+              write(*,*) "[Master] Dispatching PRODUCTION (conf ", c_type, " seed ", &
+                         seed_to_use, ") to Worker ", worker
               next_prod = next_prod + 1
               num_waiting = num_waiting - 1
               
@@ -221,7 +226,7 @@ program main_parallel_star
            write(s_ncarb,  '(I0)') n_carbons
            write(s_conf,   '(I0)') c_type
            write(s_seed,   '(I0)') seed_to_use
-           run_tag = trim(s_ncarb)//'_'//trim(s_conf)//'_equil_sd'//trim(s_seed)//'_rk'//trim(s_ncarb) ! Reusing vars to make string
+           run_tag = trim(s_ncarb)//'_'//trim(s_conf)//'_equil_sd'//trim(s_seed)//'_rk'//trim(s_ncarb) ! Reuse vars to make string
            ! Fix the string cleanly:
            write(s_ncarb, '(I0)') rank
            run_tag = 'equil_c'//trim(s_conf)//'_sd'//trim(s_seed)//'_w'//trim(s_ncarb)
@@ -233,6 +238,7 @@ program main_parallel_star
            traj_file   = '../results/trajectory_'  // trim(run_tag) // '.xyz'
 
            ! Open output files in ../results/
+           u_ener = 11; u_obs  = 12; u_tors = 13; u_cpu  = 14; u_traj = 15
            open(unit=u_ener, file=trim(energy_file), status='replace'); write(u_ener, '(A)') '# Step E_total E_lj E_tors'
            open(unit=u_obs, file=trim(obs_file), status='replace'); write(u_obs, '(A)') '# Step Rg End_to_End'
            open(unit=u_tors, file=trim(tors_file), status='replace'); write(u_tors, '(A)') '# Step Torsion_Angles(rad)...'
@@ -357,6 +363,7 @@ program main_parallel_star
            cpu_file    = '../results/cpu_'         // trim(run_tag) // '.dat'
            traj_file   = '../results/trajectory_'  // trim(run_tag) // '.xyz'
 
+           u_ener = 11; u_obs  = 12; u_tors = 13; u_cpu  = 14; u_traj = 15
            open(unit=u_ener, file=trim(energy_file), status='replace'); write(u_ener, '(A)') '# Step E_total E_lj E_tors'
            open(unit=u_obs, file=trim(obs_file), status='replace'); write(u_obs, '(A)') '# Step Rg End_to_End'
            open(unit=u_tors, file=trim(tors_file), status='replace'); write(u_tors, '(A)') '# Step Torsion_Angles(rad)...'
