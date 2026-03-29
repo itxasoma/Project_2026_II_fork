@@ -94,7 +94,7 @@ program main_parallel
   T = T_ini
   dT = (T_ini - T_fin) / dble(n_steps)
   beta = 1.0d0 / (kb * T)
-  max_delta = 0.2d0 ! radians (approx 11 degrees)
+  max_delta = 1.1d0 ! radians (approx 60 degrees)
   total_accepted = 0
   n_atoms = size(symbols) ! Number of atoms (including hydrogens)
 

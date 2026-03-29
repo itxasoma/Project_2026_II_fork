@@ -25,7 +25,7 @@ ifneq (,$(findstring parallel,$(MAKECMDGOALS)))
     $(error "MPI is required but mpi.mod was not found! Please install OpenMPI (e.g. 'sudo apt install libopenmpi-dev')")
   endif
   MPI_INC_DIR := $(dir $(MPI_MOD_FILE))
-  FFLAGS += -I$(MPI_INC_DIR)
+  #FFLAGS += -I$(MPI_INC_DIR)
 
   # OpenMP
   OMP_MOD_FILE := $(shell find /usr /opt -name omp_lib.mod -type f 2>/dev/null | head -n 1)
@@ -59,7 +59,7 @@ LIB_OBJ = $(OBJ_DIR)/parameters.o \
           $(OBJ_DIR)/observables.o
 
 MAIN_OBJ = $(OBJ_DIR)/main_serial.o
-MAIN_PARALLEL_OBJ = $(OBJ_DIR)/main_parallel_star.o
+MAIN_PARALLEL_OBJ = $(OBJ_DIR)/main_parallel.o
 
 # Executables for serial and parallel versions
 $(EXE): $(LIB_OBJ) $(MAIN_OBJ)
@@ -104,7 +104,7 @@ $(OBJ_DIR)/main_serial.o: main_serial.f90 $(LIB_OBJ)
 	$(FC) $(FFLAGS) -J$(OBJ_DIR) -I$(OBJ_DIR) -c $< -o $@
 
 # Parallel main object dependency
-$(OBJ_DIR)/main_parallel_star.o: main_parallel_star.f90 $(LIB_OBJ)
+$(OBJ_DIR)/main_parallel.o: main_parallel.f90 $(LIB_OBJ)
 	@mkdir -p $(OBJ_DIR)
 	$(FC) $(FFLAGS) -J$(OBJ_DIR) -I$(OBJ_DIR) -c $< -o $@
 
