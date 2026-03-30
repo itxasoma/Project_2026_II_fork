@@ -30,7 +30,7 @@ rng_seed   = 1234
 n_steps    = 1000000
 EOF
   echo "Running parallel: nc=${nc}, steps=1000000"
-  mpirun -np 3 ../bin/main_parallel.x
+  mpirun -np 3 ../bin/main_parallel_replicas.x
 done
 
 # Steps sweep: fixed n_carbons = 100
@@ -43,7 +43,7 @@ rng_seed   = 1234
 n_steps    = ${ns}
 EOF
   echo "Running parallel: nc=100, steps=${ns}"
-  mpirun -np 3 ../bin/main_parallel.x
+  mpirun -np 3 ../bin/main_parallel_replicas.x
 done
 
 echo "All parallel benchmark runs complete."

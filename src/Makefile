@@ -2,7 +2,7 @@
 # Contributors: Itxaso Muñoz-Aldalur, Oliwier Misztal
 
 FC     = gfortran
-# *** CHANGED: added -cpp so #ifdef in parameters.f90 always works ***
+# -cpp so #ifdef in parameters.f90 always works
 FFLAGS = -O2 -Wall -Wextra -cpp
 
 NP ?= 4
@@ -30,7 +30,7 @@ ifneq (,$(findstring parallel,$(MAKECMDGOALS)))
   ifeq ($(strip $(CPP_BIN)),)
     $(error "C-Preprocessor is required but 'cpp' was not found!")
   endif
-  # *** NOTE: -cpp already in base FFLAGS, no need to add again ***
+  # -cpp already in base FFLAGS, no need to add again
   ifneq ($(OMP_THREADS),1)
     FFLAGS += -D_USE_OPENMP
   endif
@@ -38,7 +38,7 @@ endif
 
 OBJ_DIR = ../bin
 EXE          = $(OBJ_DIR)/main_serial.x
-EXE_PARALLEL = $(OBJ_DIR)/main_parallel.x
+EXE_PARALLEL = $(OBJ_DIR)/main_parallel_replicas.x  
 
 LIB_OBJ = $(OBJ_DIR)/parameters.o \
            $(OBJ_DIR)/io.o \
@@ -49,7 +49,7 @@ LIB_OBJ = $(OBJ_DIR)/parameters.o \
            $(OBJ_DIR)/observables.o
 
 MAIN_OBJ          = $(OBJ_DIR)/main_serial.o
-MAIN_PARALLEL_OBJ = $(OBJ_DIR)/main_parallel.o
+MAIN_PARALLEL_OBJ = $(OBJ_DIR)/main_parallel_replicas.o  
 
 $(EXE): $(LIB_OBJ) $(MAIN_OBJ)
 	@mkdir -p $(OBJ_DIR)
@@ -63,22 +63,22 @@ $(OBJ_DIR)/%.o: lib/%.f90
 	@mkdir -p $(OBJ_DIR)
 	$(FC) $(FFLAGS) -J$(OBJ_DIR) -I$(OBJ_DIR) -c $< -o $@
 
-$(OBJ_DIR)/energy.o:          lib/energy.f90          $(OBJ_DIR)/parameters.o
+$(OBJ_DIR)/energy.o:           lib/energy.f90           $(OBJ_DIR)/parameters.o
 $(OBJ_DIR)/energy_all_atoms.o: lib/energy_all_atoms.f90 $(OBJ_DIR)/parameters.o
-$(OBJ_DIR)/io.o:               lib/io.f90              $(OBJ_DIR)/parameters.o
-$(OBJ_DIR)/initial-conf.o:     lib/initial-conf.f90    $(OBJ_DIR)/parameters.o
-$(OBJ_DIR)/monte_carlo.o:      lib/monte_carlo.f90     $(OBJ_DIR)/parameters.o \
-                                                        $(OBJ_DIR)/initial-conf.o \
-                                                        $(OBJ_DIR)/energy.o \
-                                                        $(OBJ_DIR)/energy_all_atoms.o
-$(OBJ_DIR)/observables.o:      lib/observables.f90     $(OBJ_DIR)/energy.o \
-                                                        $(OBJ_DIR)/energy_all_atoms.o
+$(OBJ_DIR)/io.o:               lib/io.f90               $(OBJ_DIR)/parameters.o
+$(OBJ_DIR)/initial-conf.o:     lib/initial-conf.f90     $(OBJ_DIR)/parameters.o
+$(OBJ_DIR)/monte_carlo.o:      lib/monte_carlo.f90      $(OBJ_DIR)/parameters.o \
+                                                         $(OBJ_DIR)/initial-conf.o \
+                                                         $(OBJ_DIR)/energy.o \
+                                                         $(OBJ_DIR)/energy_all_atoms.o
+$(OBJ_DIR)/observables.o:      lib/observables.f90      $(OBJ_DIR)/energy.o \
+                                                         $(OBJ_DIR)/energy_all_atoms.o
 
 $(OBJ_DIR)/main_serial.o: main_serial.f90 $(LIB_OBJ)
 	@mkdir -p $(OBJ_DIR)
 	$(FC) $(FFLAGS) -J$(OBJ_DIR) -I$(OBJ_DIR) -c $< -o $@
 
-$(OBJ_DIR)/main_parallel.o: main_parallel.f90 $(LIB_OBJ)
+$(OBJ_DIR)/main_parallel_replicas.o: main_parallel_replicas.f90 $(LIB_OBJ)  
 	@mkdir -p $(OBJ_DIR)
 	$(FC) $(FFLAGS) -J$(OBJ_DIR) -I$(OBJ_DIR) -c $< -o $@
 

@@ -1,11 +1,13 @@
-! main_parallel.f90
-! Main (driver) program to run the Monte Carlo simulation in parallel with MPI
-! Based on main_serial.f90
-! Author: Arthur Murphy
-! Contributors: Itxaso Muñoz-Aldalur
-! Minimal MPI adaptation: run conf_type = 1, 4, 5 simultaneously
+! main_parallel_replicas.f90
+! Most simple parallel Monte Carlo — 3 independent replicas via MPI
+! Each rank runs a different initial configuration (conf_type = 1, 4, 5)
+! simultaneously with no inter-process communication beyond the initial broadcast.
+! Used for speedup benchmarking vs the serial version.
+!
+! Author: Itxaso Muñoz-Aldalur
+! Contributors: Arthur Murphy, Oliwier Misztal
 
-program main_parallel
+program main_parallel_replicas
   use mpi
   use parameters
   use io
@@ -171,7 +173,7 @@ program main_parallel
       write(comment, '(A,I0,A,F15.4)') "Step ", istep, " E=", E_total
       call append_xyz(u_traj, comment, symbols, coords)
 
-      ! *** CHANGED: MPI_Wtime() instead of cpu_time() ***
+      !  MPI_Wtime() instead of cpu_time() 
       cpu_now     = MPI_Wtime()
       cpu_elapsed = cpu_now - cpu_start
       write(u_cpu, '(I10, F15.6)') istep, cpu_elapsed
@@ -196,4 +198,4 @@ program main_parallel
   deallocate(symbols, coords, phis)
   call MPI_Finalize(ierr)
 
-end program main_parallel
+end program main_parallel_replicas 
