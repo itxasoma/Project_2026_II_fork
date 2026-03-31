@@ -9,11 +9,15 @@ module parameters
   double precision, parameter:: bond_ang  = 114.0d0  ! degrees, C-C-C
 
   ! OpenMP Parallelization Switches
-  ! Enabled at runtime only when OMP_NUM_THREADS > 1 and compiled with -fopenmp
-  ! Set both to .false. for serial runs; energy.f90 !$omp directives are ignored
-  ! when compiled without -fopenmp regardless of these flags.
+  ! Set to .true. to enable parallelization of the energy calculations
+  ! (Note: Indentation not allowed here)
+#ifdef _USE_OPENMP
+  logical :: omp_total_energy = .true.
+  logical :: omp_delta_energy = .true.
+#else
   logical :: omp_total_energy = .false.
   logical :: omp_delta_energy = .false.
+#endif
 
   ! Lennard-Jones Parameters for UA calculations
   ! double precision, parameter:: sigma_cc  = 3.73d0   ! Angstrom
